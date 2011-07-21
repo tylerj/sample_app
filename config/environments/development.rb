@@ -22,5 +22,13 @@ SampleApp::Application.configure do
 
   # Only use best-standards-support built into browsers
   config.action_dispatch.best_standards_support = :builtin
+  
+  # We don't want to really send out SMS during development and testing
+  config.after_initialize do
+    Moonshado::Sms.config = {
+      :test_env => true,
+      :sms_api_url => nil
+    }
+  end
 end
 
