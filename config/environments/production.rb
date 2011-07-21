@@ -48,8 +48,8 @@ SampleApp::Application.configure do
   config.active_support.deprecation = :notify
   
   config.after_initialize do
-    Moonshado::Sms.config = {
-      :sms_api_url => ENV['MOONSHADOSMS_URL']
-    }
+    Moonshado::Sms.configure do |config|
+      config.api_key = ENV['MOONSHADOSMS_URL']
+    end
   end
 end

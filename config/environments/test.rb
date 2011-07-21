@@ -32,12 +32,4 @@ SampleApp::Application.configure do
 
   # Print deprecation notices to the stderr
   config.active_support.deprecation = :stderr
-  
-  # We don't want to really send out SMS during development and testing
-  config.after_initialize do
-    Moonshado::Sms.config = {
-      :test_env => true,
-      :sms_api_url => nil
-    }
-  end
 end
