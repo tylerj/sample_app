@@ -38,18 +38,29 @@ describe UsersController do
       
       it "should have an element for each user" do
         get :index
-        @users.each do |user|
-          response.should have_selector("li", :content => user.name)
-        end
-      end
-      
-      it "should have an element for each user" do
-        get :index
         @users[0..2].each do |user|
           response.should have_selector("li", :content => user.name)
         end
       end
+    
+      it "should not have a delete link for non-admins" do
+        non_admin = Factory(:user, :email => "non-admin@example.com", :admin => false)
+        test_sign_in(non_admin)
+        get :index
+        @users[0..3].each do |user|
+          response.should_not have_selector("a", :content => "delete")
+        end        
+      end
       
+      it "should have a delete link for admins" do
+        admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(admin)
+        get :index
+        @users[0..3].each do |user|
+          response.should have_selector("a", :content => "delete")
+        end
+      end
+
       it "should paginate users" do
         get :index
         response.should have_selector("div.pagination")
@@ -280,8 +291,15 @@ describe UsersController do
     
     describe "as an admin user" do
       before(:each) do
-        admin = Factory(:user, :email => "admin@example.com", :admin => true)
-        test_sign_in(admin)
+        @admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(@admin)
+      end
+      
+      it "should prevent admins from deleting themself" do
+        lambda do
+          delete :destroy, :id => @admin
+        end.should_not change(User, :count)
+        response.should redirect_to(users_path)
       end
       
       it "should destroy the user" do
